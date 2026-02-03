@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Heart, Users, BookOpen, Globe, Leaf } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import aboutImage from '../assets/media/about_image.png';
+
 const Home = () => {
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
@@ -75,7 +77,7 @@ const Home = () => {
              
              {/* Abstract elements */}
              <div className="absolute -top-10 -right-10 w-24 h-24 bg-yellow-300 rounded-full blur-xl opacity-60 animate-pulse" />
-             <div className="absolute -bottom-5 -left-5 w-32 h-32 bg-green-300 rounded-full blur-xl opacity-60" />
+             <div className="absolute -bottom-5 -left-5 w-32 h-32 bg-green-300 rounded-full blur-3xl opacity-60" />
           </motion.div>
         </div>
       </section>
@@ -112,13 +114,14 @@ const Home = () => {
       <section className="py-24 bg-white">
           <div className="container mx-auto px-4 grid md:grid-cols-2 gap-16 items-center">
               <div className="relative">
-                  <div className="w-full h-[500px] bg-gray-100 rounded-2xl overflow-hidden relative">
-                      {/* Placeholder Image */}
-                       <div className="absolute inset-0 bg-gray-200 flex items-center justify-center text-gray-400">
-                           Image Placeholder: Project Site
-                       </div>
+                  <div className="w-full h-[500px] bg-gray-100 rounded-2xl overflow-hidden relative shadow-2xl">
+                      <img 
+                        src={aboutImage} 
+                        alt="About Samikaran" 
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-700" 
+                      />
                   </div>
-                  <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-xl max-w-xs transition-transform hover:-translate-y-2 duration-300">
+                  <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-xl max-w-xs transition-transform hover:-translate-y-2 duration-300 border border-gray-100">
                       <p className="text-emerald-600 font-bold text-lg mb-2">"Our goal is simple."</p>
                       <p className="text-gray-600 italic">To ensure no child is left behind and every voice is heard.</p>
                   </div>

@@ -1,7 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    countryCode: '+91',
+    phone: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ type: '', message: '' });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const response = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          phone: `${formData.countryCode} ${formData.phone}`
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStatus({ type: 'success', message: 'Message sent successfully! We will contact you shortly.' });
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          countryCode: '+91',
+          phone: '',
+          message: ''
+        });
+      } else {
+        setStatus({ type: 'error', message: data.message || 'Something went wrong.' });
+      }
+    } catch (error) {
+      setStatus({ type: 'error', message: 'Failed to connect to server.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen py-12">
       <div className="container mx-auto px-4">
@@ -56,27 +110,61 @@ const Contact = () => {
            {/* Form */}
            <div className="bg-white p-8 md:p-10 rounded-3xl shadow-xl">
               <h3 className="text-2xl font-bold mb-6 text-gray-900">Send us a Message</h3>
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                 {status.message && (
+                    <div className={`p-4 rounded-xl ${status.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {status.message}
+                    </div>
+                 )}
                  <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700">First Name</label>
-                        <input type="text" placeholder="John" className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" />
+                        <input 
+                            name="firstName" 
+                            type="text" 
+                            value={formData.firstName}
+                            onChange={handleChange}
+                            placeholder="John" 
+                            required
+                            className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" 
+                        />
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700">Last Name</label>
-                        <input type="text" placeholder="Doe" className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" />
+                        <input 
+                            name="lastName" 
+                            type="text" 
+                            value={formData.lastName}
+                            onChange={handleChange}
+                            placeholder="Doe" 
+                            required
+                            className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" 
+                        />
                     </div>
                  </div>
                  
                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Email Address</label>
-                    <input type="email" placeholder="john@example.com" className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" />
+                    <input 
+                        name="email" 
+                        type="email" 
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="john@example.com" 
+                        required
+                        className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" 
+                    />
                  </div>
 
                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Mobile Number</label>
                     <div className="flex gap-2">
-                        <select className="p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all min-w-[120px] cursor-pointer" defaultValue="+91">
+                        <select 
+                            name="countryCode"
+                            value={formData.countryCode}
+                            onChange={handleChange}
+                            className="p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all min-w-[120px] cursor-pointer"
+                        >
                             <option value="+91">🇮🇳 +91</option>
                             <option value="+1">🇺🇸 +1</option>
                             <option value="+44">🇬🇧 +44</option>
@@ -85,17 +173,36 @@ const Contact = () => {
                             <option value="+81">🇯🇵 +81</option>
                             <option value="+49">🇩🇪 +49</option>
                         </select>
-                        <input type="tel" placeholder="Enter mobile number" className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" />
+                        <input 
+                            name="phone" 
+                            type="tel" 
+                            value={formData.phone}
+                            onChange={handleChange}
+                            placeholder="Enter mobile number" 
+                            required
+                            className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all" 
+                        />
                     </div>
                  </div>
 
                  <div className="space-y-2">
                     <label className="text-sm font-semibold text-gray-700">Message</label>
-                    <textarea placeholder="How can we help?" rows="5" className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all resize-none"></textarea>
+                    <textarea 
+                        name="message" 
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="How can we help?" 
+                        rows="5" 
+                        required
+                        className="w-full p-4 bg-gray-50 rounded-xl border border-gray-100 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 outline-none transition-all resize-none"
+                    ></textarea>
                  </div>
 
-                 <button className="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transform hover:-translate-y-1 transition-all shadow-lg hover:shadow-emerald-200 flex items-center justify-center gap-2 text-lg">
-                    Send Message <Send size={20} />
+                 <button 
+                    disabled={loading}
+                    className={`w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transform hover:-translate-y-1 transition-all shadow-lg hover:shadow-emerald-200 flex items-center justify-center gap-2 text-lg ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                 >
+                    {loading ? 'Sending...' : 'Send Message'} <Send size={20} />
                  </button>
               </form>
            </div>
